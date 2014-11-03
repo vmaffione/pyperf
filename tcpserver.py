@@ -46,6 +46,8 @@ try:
                     if sent == 0:
                         break
         except ConnectionResetError:
+            pass
+        except BrokenPipeError:
             # raised by client.send() if the client
             # has closed the connection
             pass
