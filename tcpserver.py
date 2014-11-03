@@ -29,7 +29,7 @@ try:
 
         # negotiate the test cofiguration
         config = client.recv(1)
-        direction = chr(config[0])
+        direction = config[0] if type(config) == str else chr(config[0])
         print("Negotiated %s" % (direction,))
 
         data = bytearray(4096)
@@ -45,9 +45,7 @@ try:
                     sent = client.send(data)
                     if sent == 0:
                         break
-        except ConnectionResetError:
-            pass
-        except BrokenPipeError:
+        except:
             # raised by client.send() if the client
             # has closed the connection
             pass
