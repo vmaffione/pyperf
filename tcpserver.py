@@ -4,17 +4,16 @@ import sys
 import socket
 
 def usage_and_quit():
-    print("Usage: %s [up|down] LISTENPORT" % (sys.argv[0],))
+    print("Usage: %s LISTENPORT" % (sys.argv[0],))
     quit()
 
 
-if len(sys.argv) < 3:
+if len(sys.argv) < 2:
     usage_and_quit()
 
 host = ''
 try:
-    direction = sys.argv[1]
-    port = int(sys.argv[2])
+    port = int(sys.argv[1])
 except ValueError:
     usage_and_quit()
     
@@ -27,18 +26,29 @@ s.listen(backlog)
 try:
     while 1:
         client, address = s.accept()
+
+        # negotiate the test cofiguration
+        config = client.recv(1)
+        direction = chr(config[0])
+        print("Negotiated %s" % (direction,))
+
         data = bytearray(4096)
-        while 1:
-            if direction == 'up':
-                # upload test
-                data = client.recv(4096)
-                if not data:
-                    break
-            else:
-                # download test
-                sent = client.send(data)
-                if sent == 0:
-                    break
+        try:
+            while 1:
+                if direction == 'u':
+                    # upload test
+                    data = client.recv(4096)
+                    if not data:
+                        break
+                else:
+                    # download test
+                    sent = client.send(data)
+                    if sent == 0:
+                        break
+        except ConnectionResetError:
+            # raised by client.send() if the client
+            # has closed the connection
+            pass
         client.close()
 except KeyboardInterrupt:
     pass

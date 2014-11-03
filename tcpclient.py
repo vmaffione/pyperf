@@ -6,7 +6,7 @@ import time
 
 
 def usage_and_quit():
-    print("Usage: %s [up|down] DSTIP DSTPORT" % (sys.argv[0],))
+    print("Usage: %s [u|d] DSTIP DSTPORT" % (sys.argv[0],))
     quit();
 
 
@@ -28,8 +28,13 @@ bytes_cnt_th = 1000
 last_ts = time.time()
 
 try:
+    # negotiate the test configuration
+    config = bytearray(1)
+    config[0] = ord(direction[0])
+    s.send(config)
+
     while 1:
-        if direction == 'up':
+        if direction == 'u':
             # upload test
             s.send(data)
         else:
