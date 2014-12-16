@@ -2,25 +2,24 @@
 
 import sys
 import socket
-
-def usage_and_quit():
-    print("Usage: %s LISTENPORT" % (sys.argv[0],))
-    quit()
+import argparse
 
 
-if len(sys.argv) < 2:
-    usage_and_quit()
-
+description = "Simplified clone of netperf server:\n\
+               - no separate control connection\n\
+               - (data) connection destination port can be specified\n"
+epilog = "Report bugs to v.maffione@gmail.com"
+argparser = argparse.ArgumentParser(description = description,
+                                    epilog = epilog)
+argparser.add_argument('-p', '--port', help = "Server listening port",
+                       type = int, default = 7777)
+args = argparser.parse_args()
 host = ''
-try:
-    port = int(sys.argv[1])
-except ValueError:
-    usage_and_quit()
     
 backlog = 5
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind((host,port))
+s.bind((host,args.port))
 s.listen(backlog)
 
 try:
