@@ -3,25 +3,32 @@
 import sys
 import socket
 import time
+import argparse
 
 
-def usage_and_quit():
-    print("Usage: %s [u|d] DSTIP DSTPORT" % (sys.argv[0],))
-    quit();
+description = "Simplified clone of netperf client:\n\
+               - no separate control connection\n\
+               - (data) connection destination port can be specified\n"
+epilog = "Report bugs to v.maffione@gmail.com"
+argparser = argparse.ArgumentParser(description = description,
+                                    epilog = epilog)
+argparser.add_argument('-H', '--host', help = "Server IP address",
+                       type = str, default = "127.0.0.1")
+argparser.add_argument('-p', '--port', help = "Server listening port",
+                       type = int, default = 7777)
+argparser.add_argument('-t', '--test-type',
+                       help = "Test type",
+                       type = str, default = "TCP_MAERTS",
+                       choices = ["TCP_MAERTS", "TCP_STREAM"])
+args = argparser.parse_args()
 
-
-if len(sys.argv) < 4:
-    usage_and_quit()
-
-direction = sys.argv[1]
-host = sys.argv[2]
-try:
-    port = int(sys.argv[3])
-except ValueError:
-    usage_and_quit()
+if args.test_type == "TCP_MAERTS":
+    direction = 'd'
+else:
+    direction = 'u'
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((host,port))
+s.connect((args.host, args.port))
 data = bytearray(4096)
 bytes_cnt = 0
 bytes_cnt_th = 1000
