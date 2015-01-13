@@ -28,7 +28,12 @@ else:
     direction = 'u'
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((args.host, args.port))
+try:
+    s.connect((args.host, args.port))
+except ConnectionRefusedError:
+    print("Error: Connection refused")
+    quit(1)
+
 data = bytearray(4096)
 bytes_cnt = 0
 bytes_cnt_th = 1000
